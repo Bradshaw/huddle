@@ -1,0 +1,20 @@
+services:
+  client:
+    develop:
+      watch:
+        - action: rebuild
+          path: ./client
+          ignore:
+            - node_modules/
+
+  server:
+    build:
+      args:
+        RUST_BUILD_PROFILE: dev
+        RUST_TARGET_SUBDIR: debug
+    develop:
+      watch:
+        - action: rebuild
+          path: ./server
+          ignore:
+            - target/

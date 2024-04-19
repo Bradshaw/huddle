@@ -32,7 +32,7 @@ function MyButton() {
   const [state, setState] = useState({type: StateType.Unset} as NetworkState);
 
   useEffect(() => {
-    fetch("/get-count")
+    fetch("/api/get-count")
       .then((res) => res.json())
       .then((data) => setState({
           type: StateType.State,
@@ -46,7 +46,7 @@ function MyButton() {
   }, []);
 
   function handleClick() {
-    fetch("/bump")
+    fetch("/api/bump")
       .then((res) => res.json())
       .then((data) => setState({
           type: StateType.State,

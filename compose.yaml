@@ -1,0 +1,19 @@
+services:
+  client:
+    build:
+      context: client
+      args:
+        PORT: 80
+        SERVER_ADDRESS: http://server:3001/
+    ports:
+      - 3000:80
+
+  server:
+    build:
+      context: server
+    hostname: server
+    ports:
+      - 3001:3001
+    environment:
+      ADDRESS: 0.0.0.0:3001
+      RUST_LOG: info
