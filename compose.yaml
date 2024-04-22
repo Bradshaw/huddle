@@ -3,17 +3,49 @@ services:
     build:
       context: client
       args:
-        PORT: 80
-        SERVER_ADDRESS: http://server:3001/
+        PORT: ${CLIENT_INTERNAL_PORT}
+        SERVER_ADDRESS: http://${SERVER_HOSTNAME}:${SERVER_PORT}/
     ports:
-      - 3000:80
+      - ${CLIENT_EXPOSED_PORT}:${CLIENT_INTERNAL_PORT}
+    depends_on:
+      server:
+        condition: service_started
 
   server:
     build:
       context: server
-    hostname: server
+    hostname: ${SERVER_HOSTNAME}
     ports:
-      - 3001:3001
+      - ${SERVER_PORT}:${SERVER_PORT}
     environment:
-      ADDRESS: 0.0.0.0:3001
-      RUST_LOG: info
+      ADDRESS: 0.0.0.0:${SERVER_PORT}
+      RUST_LOG: ${SERVER_LOG_LEVEL}
+      DB_DBNAME: ${DB_DBNAME}
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+  
+  db:
+    image: postgres
+    restart: always
+    hostname: ${DB_HOST}
+    user: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_DBNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    expose:
+      - 5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db-data:

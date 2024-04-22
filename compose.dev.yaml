@@ -10,11 +10,21 @@ services:
   server:
     build:
       args:
-        RUST_BUILD_PROFILE: dev
-        RUST_TARGET_SUBDIR: debug
+        RUST_BUILD_PROFILE: ${SERVER_WATCH_PROFILE}
+        RUST_TARGET_SUBDIR: ${SERVER_WATCH_SUBDIR}
     develop:
       watch:
         - action: rebuild
           path: ./server
           ignore:
             - target/
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@email.com
+      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_LISTEN_ADDRESS: "0.0.0.0"
+      PGADMIN_LISTEN_PORT: "3002"
+    ports:
+      - 3002:3002

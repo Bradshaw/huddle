@@ -9,6 +9,7 @@ ARG RUST_TARGET_SUBDIR
 WORKDIR /app
 
 COPY Cargo.* ./
+COPY sql ./sql
 COPY src ./src
 
 RUN echo cargo build --locked --target-dir ./target/$RUST_BUILD_PROFILE --profile $RUST_BUILD_PROFILE
