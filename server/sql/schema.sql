@@ -9,3 +9,12 @@ CREATE TABLE testing.users (
 	username    VARCHAR(50) UNIQUE NOT NULL,
 	UNIQUE (username)
 );
+
+CREATE TABLE testing.counter (
+	id INT PRIMARY KEY NOT NULL DEFAULT(1) CHECK (id = 1),
+	count INT NOT NULL
+);
+
+INSERT INTO testing.counter(count)
+VALUES (0)
+RETURNING count;
