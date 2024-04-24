@@ -41,11 +41,6 @@ async fn main() -> std::io::Result<()> {
                     .route(web::post().to(increment_count))
                     .route(web::get().to(get_count)),
             )
-            .service(
-                web::resource("/users")
-                    .route(web::post().to(add_user))
-                    .route(web::get().to(get_users)),
-            )
     })
     .bind(config.server_addr.clone())?
     .run();

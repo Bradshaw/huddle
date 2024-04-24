@@ -5,19 +5,19 @@ use tokio_pg_mapper::Error as PGMError;
 use tokio_postgres::error::Error as PGError;
 
 #[derive(Display, From, Debug)]
-pub enum MyError {
+pub enum HuddleError {
     NotFound,
     PGError(PGError),
     PGMError(PGMError),
     PoolError(PoolError),
 }
-impl std::error::Error for MyError {}
+impl std::error::Error for HuddleError {}
 
-impl ResponseError for MyError {
+impl ResponseError for HuddleError {
     fn error_response(&self) -> HttpResponse {
         match *self {
-            MyError::NotFound => HttpResponse::NotFound().finish(),
-            MyError::PoolError(ref err) => {
+            HuddleError::NotFound => HttpResponse::NotFound().finish(),
+            HuddleError::PoolError(ref err) => {
                 HttpResponse::InternalServerError().body(err.to_string())
             }
             _ => HttpResponse::InternalServerError().finish(),
