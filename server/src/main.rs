@@ -8,9 +8,10 @@ mod db;
 
 mod handlers;
 
+mod schema;
+
 use actix_web::{middleware::Logger, web, App, HttpServer};
 use env_logger::Env;
-use tokio_postgres::NoTls;
 
 use crate::{config::Config, handlers::*};
 
@@ -22,20 +23,12 @@ async fn main() -> std::io::Result<()> {
             .default_write_style_or("auto"),
     );
 
-    let config = Config::from_env();
-
-    let pool = config.pg.create_pool(None, NoTls).unwrap();
-
-    match initialize_db(&pool).await {
-        Ok(_) => (),
-        Err(err) => println!("Error initializing database:\n{err}"),
-    }
+    let config = Config::from_env().unwrap();
 
     let server = HttpServer::new(move || {
         // move counter into the closure
         App::new()
             .wrap(Logger::default())
-            .app_data(web::Data::new(pool.clone()))
             .service(
                 web::resource("/counter")
                     .route(web::post().to(increment_count))

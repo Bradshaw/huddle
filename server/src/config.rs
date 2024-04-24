@@ -1,13 +1,37 @@
 use serde::Deserialize;
+
+use crate::errors::HuddleError;
 #[derive(Debug, Default, Deserialize)]
 pub(crate) struct Config {
     pub server_addr: String,
-    pub pg: deadpool_postgres::Config,
+    pub database: DbConfig,
+}
+
+#[derive(Debug, Default, Deserialize)]
+pub(crate) struct DbConfig {
+    host: String,
+    dbname: String,
+    user: String,
+    password: String,
+}
+
+impl DbConfig {
+    pub fn new(    host: String,
+        dbname: String,
+        user: String,
+        password: String) -> Self {
+        Self { host, dbname, user, password}
+    }
+
+    pub fn address(&self) -> String {
+        let Self {host, dbname, user, password} = self;
+        format!("postgres://{user}:{password}@{host}/{dbname}")
+    }
 }
 
 #[inline]
-fn get_env(key: &str) -> Option<String> {
-    std::env::var(key).ok()
+fn get_env(key: &str) -> Result<String, HuddleError> {
+    std::env::var(key).map_err(|_| HuddleError::MissingConfigurationError(key.into()))
 }
 
 #[inline]
@@ -20,15 +44,15 @@ fn address() -> String {
 }
 
 impl Config {
-    pub(crate) fn from_env() -> Self {
-        let mut pg_config = deadpool_postgres::Config::new();
-        pg_config.host = get_env("DB_HOST");
-        pg_config.dbname = get_env("DB_DBNAME");
-        pg_config.user = get_env("DB_USER");
-        pg_config.password = get_env("DB_PASSWORD");
-        Self {
+    pub(crate) fn from_env() -> Result<Self, HuddleError> {
+        Ok(Self {
             server_addr: address(),
-            pg: pg_config,
-        }
+            database: DbConfig::new(
+                get_env("DB_HOST")?,
+                get_env("DB_DBNAME")?,
+                get_env("DB_USER")?,
+                get_env("DB_PASSWORD")?,
+            )
+        })
     }
 }

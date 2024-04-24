@@ -8,8 +8,10 @@ ARG RUST_BUILD_PROFILE
 ARG RUST_TARGET_SUBDIR
 WORKDIR /app
 
+RUN apt-get update;\
+    apt-get install -y libpq-dev;
+
 COPY Cargo.* ./
-COPY sql ./sql
 COPY src ./src
 
 RUN echo cargo build --locked --target-dir ./target/$RUST_BUILD_PROFILE --profile $RUST_BUILD_PROFILE
@@ -24,6 +26,9 @@ cp ./target/$RUST_TARGET_SUBDIR/$APP_NAME /bin/server
 EOF
 
 FROM debian:stable-slim as production-stage
+
+RUN apt-get update;\
+    apt-get install -y libpq5;
 
 COPY --from=build-stage /bin/server /bin/
 
